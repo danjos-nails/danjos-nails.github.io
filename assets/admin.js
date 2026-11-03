@@ -70,6 +70,8 @@ if (!window.supabase || !window.supabase.createClient) {
   $("#semConfig").hidden = false; $("#semConfig h1").textContent = "Não conseguimos carregar o painel";
   $("#semConfig p").textContent = "Confira sua conexão com a internet e recarregue a página."; return;
 }
+// link de convite ou de "esqueci a senha": guardar antes do Supabase ler o endereço
+let PEDIR_SENHA = /type=(invite|recovery|signup)/.test(location.hash);
 const sb = window.supabase.createClient(S.supabase.url, S.supabase.chavePublica);
 if (window.PAINEL_DEMO) {
   $("#demoPainel").hidden = false;
@@ -102,14 +104,17 @@ $("#formNovaSenha").addEventListener("submit", async e => {
   if (s.length < 8) { er.hidden = false; er.textContent = "Use pelo menos 8 caracteres."; return; }
   const { error } = await sb.auth.updateUser({ password: s });
   if (error) { er.hidden = false; er.textContent = msgErro(error); return; }
-  $("#formNovaSenha").hidden = true; formLogin.hidden = false; toast("Senha alterada."); entrar();
+  PEDIR_SENHA = false; history.replaceState(null, "", location.pathname);
+  $("#formNovaSenha").hidden = true; formLogin.hidden = false; toast("Senha salva. Bem-vinda!"); entrar();
 });
-sb.auth.onAuthStateChange(ev => { if (ev === "PASSWORD_RECOVERY") { $("#telaLogin").hidden = false; $("#app").hidden = true; formLogin.hidden = true; $("#formNovaSenha").hidden = false; } });
+const pedirSenha = () => { $("#telaLogin").hidden = false; $("#app").hidden = true; formLogin.hidden = true; $("#formNovaSenha").hidden = false; $("#nsSenha").focus(); };
+sb.auth.onAuthStateChange(ev => { if (ev === "PASSWORD_RECOVERY") { PEDIR_SENHA = true; pedirSenha(); } });
 $("#btnSair").addEventListener("click", async () => { await sb.auth.signOut(); location.reload(); });
 
 async function entrar() {
   const { data: s } = await sb.auth.getSession();
   if (!s || !s.session) { $("#telaLogin").hidden = false; $("#app").hidden = true; return; }
+  if (PEDIR_SENHA) { pedirSenha(); return; }
   const { data: ok, error } = await sb.rpc("am_i_admin");
   if (error || !ok) {
     await sb.auth.signOut(); $("#telaLogin").hidden = false; $("#app").hidden = true;
