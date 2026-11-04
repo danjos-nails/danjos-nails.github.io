@@ -35,7 +35,7 @@ window.SITE = {
       valor: 20,                         // em reais
       pix: "",                           // chave Pix dela (telefone, e-mail, CPF ou aleatória)
       favorecido: "",                    // nome que aparece no Pix, para a cliente conferir
-      regra: "O valor do sinal é descontado do total no dia do atendimento. Se você cancelar com menos de 24 horas de antecedência ou não estiver no endereço, o sinal não é devolvido.",
+      regra: "Se você cancelar com menos de 24 horas de antecedência ou não estiver no endereço, o sinal não é devolvido.",
     },
   },
 

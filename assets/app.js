@@ -39,7 +39,7 @@ const SINAL = S.marca.sinal && Number(S.marca.sinal.valor) > 0 ? S.marca.sinal :
 const sinalTxt = () => SINAL ? brl(Number(SINAL.valor)) : "";
 if (SINAL) { const t = $("#sinalTopo"); if (t) { t.hidden = false;
   t.append(el("span", { class: "ic", "aria-hidden": "true", text: "💳" }), el("span", {}, el("b", { text: `Sinal de ${sinalTxt()} para garantir o horário. ` }),
-    "Depois de agendar, faça o Pix do sinal e mande o comprovante pelo WhatsApp. O valor é descontado no dia do atendimento.")); } }
+    "Depois de agendar, faça o Pix do sinal e mande o comprovante pelo WhatsApp.")); } }
 const foneFmt = (() => { const d = S.marca.whatsapp.replace(/^55/, ""); return d.length === 11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : d; })();
 const DIAS = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const DIAS_L = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
@@ -300,10 +300,10 @@ function pintaFaq() {
   const prazo = horasTexto(CONF.cancel_notice_min);
   S.faq.filter(mostrar).forEach(q => {
     let r = q.r;
-    if (q.usarPagamento) { if (!mostrar(S.marca.pagamento)) return; r = S.marca.pagamento.texto + (SINAL ? ` Para garantir o horário, é feito um sinal de ${sinalTxt()} por Pix. ${SINAL.regra || ""} O restante é pago no final do atendimento.` : " O pagamento é feito no final do atendimento."); }
+    if (q.usarPagamento) { if (!mostrar(S.marca.pagamento)) return; r = S.marca.pagamento.texto + (SINAL ? ` Para garantir o horário, é feito um sinal de ${sinalTxt()} por Pix. ${SINAL.regra || ""} O valor do atendimento ela combina com você.` : " O pagamento é feito no final do atendimento."); }
     if (q.agenda) r = ONLINE ? "Você escolhe o serviço, vê os dias e horários que estão livres de verdade, informa seus dados e confirma. O horário fica reservado na hora e ela confirma pelo WhatsApp."
                              : "Você escolhe o serviço, o dia e um horário, informa o endereço e envia o pedido. A mensagem chega pronta no WhatsApp dela, e o horário fica garantido quando ela responder confirmando.";
-    if (q.agenda && SINAL) r += ` Para garantir o horário, é pedido um sinal de ${sinalTxt()} por Pix, descontado do valor no dia.`;
+    if (q.agenda && SINAL) r += ` Para garantir o horário, é pedido um sinal de ${sinalTxt()} por Pix.`;
     if (q.agendaCancel) r = ONLINE ? `No final do agendamento aparece um link só seu. Por ele você vê, cancela ou remarca o horário até ${prazo} antes. Depois disso, é só falar com ela no WhatsApp.`
                                    : "É só avisar pelo WhatsApp com antecedência. Assim ela consegue oferecer o horário para outra cliente.";
     faq.append(el("details", {}, el("summary", {}, el("span", {}, q.p + " ", tagC(q)), el("span", { class: "pm", "aria-hidden": "true" })), el("p", { class: "ans", text: r })));
