@@ -469,3 +469,6 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .sinal-box{border:1px solid var(--line)}
 .sinal-box b{font-weight:500}
 .aviso .sinal-l{font-size:.95rem}
+.sinal-topo{display:flex;gap:12px;align-items:flex-start;background:var(--warn-bg);border-left:4px solid var(--accent,#7d4b5c);border-radius:6px;padding:14px 18px;margin:0 0 18px;font-size:.95rem;color:var(--ink);line-height:1.5}
+.sinal-topo b{font-weight:600}
+.sinal-topo .ic{font-size:1.25rem;line-height:1}

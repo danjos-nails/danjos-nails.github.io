@@ -37,6 +37,9 @@ const soDig = s => (s || "").replace(/\D/g, "");
 const zap = txt => `https://wa.me/${S.marca.whatsapp}?text=${encodeURIComponent(txt)}`;
 const SINAL = S.marca.sinal && Number(S.marca.sinal.valor) > 0 ? S.marca.sinal : null;
 const sinalTxt = () => SINAL ? brl(Number(SINAL.valor)) : "";
+if (SINAL) { const t = $("#sinalTopo"); if (t) { t.hidden = false;
+  t.append(el("span", { class: "ic", "aria-hidden": "true", text: "💳" }), el("span", {}, el("b", { text: `Sinal de ${sinalTxt()} para garantir o horário. ` }),
+    "Depois de agendar, faça o Pix do sinal e mande o comprovante pelo WhatsApp. O valor é descontado no dia do atendimento.")); } }
 const foneFmt = (() => { const d = S.marca.whatsapp.replace(/^55/, ""); return d.length === 11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : d; })();
 const DIAS = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const DIAS_L = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
