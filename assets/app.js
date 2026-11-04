@@ -479,6 +479,7 @@ const Booking = (() => {
     const item = (k, x) => dl.append(el("dt", { text: k }), el("dd", { class: x ? "" : "vz", text: x || "Ainda não escolhido" }));
     item("Serviços", sel().map(s => s.nome).join(", ")); item("Duração", st.svc.size ? "Cerca de " + dur(totalMin()) : "");
     item("Dia", st.dia ? diaLongo(st.diaData) : ""); item("Horário", st.hora ? `${horaTxt(st.hora)} às ${horaTxt(new Date(+st.hora + totalMin() * 6e4))}` : ""); item("Valor", precoTxt());
+    if (SINAL) item("Sinal", `${sinalTxt()} via Pix para garantir o horário`);
   }
 
   function erro(n, txt) { const e = $(`[data-erro="${n}"]`); if (!e) return; e.hidden = !txt; e.textContent = txt || ""; }
