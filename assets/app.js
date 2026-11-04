@@ -35,6 +35,8 @@ const toMin = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m;
 const toHM = m => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 const soDig = s => (s || "").replace(/\D/g, "");
 const zap = txt => `https://wa.me/${S.marca.whatsapp}?text=${encodeURIComponent(txt)}`;
+const SINAL = S.marca.sinal && Number(S.marca.sinal.valor) > 0 ? S.marca.sinal : null;
+const sinalTxt = () => SINAL ? brl(Number(SINAL.valor)) : "";
 const foneFmt = (() => { const d = S.marca.whatsapp.replace(/^55/, ""); return d.length === 11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : d; })();
 const DIAS = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const DIAS_L = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
@@ -295,9 +297,10 @@ function pintaFaq() {
   const prazo = horasTexto(CONF.cancel_notice_min);
   S.faq.filter(mostrar).forEach(q => {
     let r = q.r;
-    if (q.usarPagamento) { if (!mostrar(S.marca.pagamento)) return; r = S.marca.pagamento.texto + " O pagamento é feito no final do atendimento."; }
+    if (q.usarPagamento) { if (!mostrar(S.marca.pagamento)) return; r = S.marca.pagamento.texto + (SINAL ? ` Para garantir o horário, é feito um sinal de ${sinalTxt()} por Pix. ${SINAL.regra || ""} O restante é pago no final do atendimento.` : " O pagamento é feito no final do atendimento."); }
     if (q.agenda) r = ONLINE ? "Você escolhe o serviço, vê os dias e horários que estão livres de verdade, informa seus dados e confirma. O horário fica reservado na hora e ela confirma pelo WhatsApp."
                              : "Você escolhe o serviço, o dia e um horário, informa o endereço e envia o pedido. A mensagem chega pronta no WhatsApp dela, e o horário fica garantido quando ela responder confirmando.";
+    if (q.agenda && SINAL) r += ` Para garantir o horário, é pedido um sinal de ${sinalTxt()} por Pix, descontado do valor no dia.`;
     if (q.agendaCancel) r = ONLINE ? `No final do agendamento aparece um link só seu. Por ele você vê, cancela ou remarca o horário até ${prazo} antes. Depois disso, é só falar com ela no WhatsApp.`
                                    : "É só avisar pelo WhatsApp com antecedência. Assim ela consegue oferecer o horário para outra cliente.";
     faq.append(el("details", {}, el("summary", {}, el("span", {}, q.p + " ", tagC(q)), el("span", { class: "pm", "aria-hidden": "true" })), el("p", { class: "ans", text: r })));
@@ -462,11 +465,14 @@ const Booking = (() => {
   function renderRevisao() {
     fillDl($("#revisao"), linhas());
     const av = $("#avisoPol"); av.innerHTML = "";
+    if (SINAL) av.append(el("p", { class: "sinal-l" }, el("b", { text: `Sinal de ${sinalTxt()} para garantir o horário: ` }),
+      `depois de agendar, faça o Pix do sinal e mande o comprovante pelo WhatsApp. O horário só fica garantido depois do sinal. ${SINAL.regra || ""}`));
+    $("#aceiteTxt").textContent = SINAL ? (polVisivel ? `Li as informações sobre o sinal de ${sinalTxt()}, cancelamento e atrasos.` : `Estou ciente do sinal de ${sinalTxt()} para garantir o horário.`) : "Li as informações sobre cancelamento e atrasos.";
     if (polVisivel) { S.politicas.itens.slice(0, 2).forEach(p => av.append(el("p", {}, el("b", { text: p.t + ": " }), p.d))); $(".check").hidden = false; }
-    else { av.append(el("p", { text: ONLINE ? `Se precisar, você pode cancelar ou remarcar pelo link do agendamento até ${horasTexto(CONF.cancel_notice_min)} antes.` : "Se precisar desmarcar ou for se atrasar, avise pelo WhatsApp o quanto antes." })); $(".check").hidden = true; }
+    else { av.append(el("p", { text: ONLINE ? `Se precisar, você pode cancelar ou remarcar pelo link do agendamento até ${horasTexto(CONF.cancel_notice_min)} antes.` : "Se precisar desmarcar ou for se atrasar, avise pelo WhatsApp o quanto antes." })); if (!SINAL) $(".check").hidden = true; }
   }
   const mensagem = (link) => [`Olá${S.marca.profissional ? ", " + S.marca.profissional : ""}! ${ONLINE ? "Acabei de agendar pelo site." : "Vim pelo site e gostaria de agendar um horário."}`, "",
-    ...linhas().map(([k, x]) => `*${k}:* ${x}`), link ? `*Meu agendamento:* ${link}` : null, "", ONLINE ? "Fico no aguardo da sua confirmação. Obrigada!" : "Aguardo sua confirmação. Obrigada!"].filter(x => x !== null).join("\n");
+    ...linhas().map(([k, x]) => `*${k}:* ${x}`), link ? `*Meu agendamento:* ${link}` : null, SINAL ? `*Sinal:* ${sinalTxt()} via Pix (vou enviar o comprovante aqui)` : null, "", ONLINE ? "Fico no aguardo da sua confirmação. Obrigada!" : "Aguardo sua confirmação. Obrigada!"].filter(x => x !== null).join("\n");
 
   function resumo() {
     const dl = $("#resumo"); dl.innerHTML = "";
@@ -482,7 +488,7 @@ const Booking = (() => {
     if (n === 2 && !st.dia) { erro(2, "Escolha um dia para ver os horários."); return false; }
     if (n === 3 && !st.hora) { erro(3, "Escolha um horário."); return false; }
     if (n === 4) { const ok = Object.keys(regras).map(checar).every(Boolean); if (!ok) { const p = form.querySelector('[aria-invalid="true"]'); p && p.focus(); } return ok; }
-    if (n === 5 && polVisivel && !$("#aceite").checked) { erro(5, "Confirme que leu as informações sobre cancelamento e atrasos."); return false; }
+    if (n === 5 && (polVisivel || SINAL) && !$("#aceite").checked) { erro(5, SINAL ? `Confirme que está ciente do sinal de ${sinalTxt()}.` : "Confirme que leu as informações sobre cancelamento e atrasos."); return false; }
     return true;
   }
   function ir(n, foco = true) {
@@ -506,6 +512,14 @@ const Booking = (() => {
     fillDl($("#revisaoFinal"), linhas());
     $("#sucTitulo").textContent = titulo; $("#sucTexto").innerHTML = ""; $("#sucTexto").append(...texto);
     $("#gerLinkBox").hidden = !link; if (link) $("#gerLink").value = link;
+    $("#sinalBox").hidden = !SINAL;
+    if (SINAL) {
+      const t = $("#sinalTxt"); t.innerHTML = "";
+      t.append(el("b", { text: `Faça o Pix do sinal de ${sinalTxt()}` }), " e mande o comprovante pelo WhatsApp. Seu horário fica garantido depois do sinal.");
+      $("#sinalPix").value = SINAL.pix || ""; $("#sinalPix").closest(".gerlink-row").hidden = !SINAL.pix;
+      if (!SINAL.pix) t.append(" Ela te passa a chave Pix pelo WhatsApp.");
+      $("#sinalFav").textContent = SINAL.pix && SINAL.favorecido ? `Confira o nome no Pix: ${SINAL.favorecido}` : "";
+    }
     $("#zapDeNovo").href = zap(st.msg); $("#zapDeNovo").textContent = zapLabel;
     form.hidden = true; $(".bk-side").hidden = true; $("#stepsNav").hidden = true;
     const ok = $("#sucesso"); ok.hidden = false; ok.focus({ preventScroll: true });
@@ -532,7 +546,7 @@ const Booking = (() => {
       const link = `${location.origin}${location.pathname}?agendamento=${data.token}`;
       st.msg = mensagem(link);
       carregando(false);
-      mostraSucesso({ titulo: "Horário reservado!", zapLabel: "Avisar pelo WhatsApp", link,
+      mostraSucesso({ titulo: "Horário reservado!", zapLabel: SINAL ? "Avisar e enviar comprovante" : "Avisar pelo WhatsApp", link,
         texto: [`Seu horário de ${diaLongo(st.hora)}, às ${horaTxt(st.hora)}, está reservado e aguardando a confirmação ${S.marca.profissional ? "da " + S.marca.profissional : "dela"}. `,
           el("b", { text: "Toque em Avisar pelo WhatsApp" }), " para mandar os detalhes e, se quiser, uma foto de referência."] });
     } catch (err) {
@@ -546,6 +560,7 @@ const Booking = (() => {
     }
   });
   $("#copiarMsg").addEventListener("click", async () => { $("#copiaMsg").textContent = (await copiar(st.msg)) ? `Mensagem copiada. Cole no WhatsApp ${foneFmt}.` : `Não deu para copiar automaticamente. Envie para ${foneFmt}.`; });
+  $("#copiarPix").addEventListener("click", async () => { const ok = await copiar($("#sinalPix").value); if (!ok) $("#sinalPix").select(); $("#copiaMsg").textContent = ok ? "Chave Pix copiada." : "Selecione a chave para copiar."; });
   $("#copiarLink").addEventListener("click", async () => { const ok = await copiar($("#gerLink").value); if (!ok) $("#gerLink").select(); $("#copiaMsg").textContent = ok ? "Link copiado." : "Selecione o link para copiar."; });
   $("#novoAg").addEventListener("click", () => {
     st.svc.clear(); st.dia = null; st.hora = null; st.slots = null; form.reset(); $$("#pick input").forEach(i => i.checked = false);

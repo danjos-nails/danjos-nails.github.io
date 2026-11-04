@@ -464,3 +464,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   .over{position:relative;align-self:stretch;margin-top:26px}
 }
 @media (max-width:900px) and (max-height:700px){.feature{width:min(44%,200px);height:auto}}
+
+/* sinal */
+.sinal-box{border:1px solid var(--line)}
+.sinal-box b{font-weight:500}
+.aviso .sinal-l{font-size:.95rem}

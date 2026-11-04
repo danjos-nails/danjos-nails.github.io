@@ -29,6 +29,14 @@ window.SITE = {
     regiao: "",                          // ex.: "Zona Leste de São Paulo"
     bairros: [],                         // ex.: ["Tatuapé", "Mooca"]
     pagamento: { texto: "Pix, dinheiro e cartão.", confirmar: true },
+
+    /* Sinal para garantir o horário. valor: 0 desliga. */
+    sinal: {
+      valor: 20,                         // em reais
+      pix: "",                           // chave Pix dela (telefone, e-mail, CPF ou aleatória)
+      favorecido: "",                    // nome que aparece no Pix, para a cliente conferir
+      regra: "O valor do sinal é descontado do total no dia do atendimento. Se você cancelar com menos de 24 horas de antecedência ou não estiver no endereço, o sinal não é devolvido.",
+    },
   },
 
   /* Usado só no modo WhatsApp (sem Supabase). 0 = domingo … 6 = sábado. */

@@ -228,7 +228,7 @@
             <legend class="step-t">Confira antes de enviar</legend>
             <dl class="revisao" id="revisao"></dl>
             <div class="aviso" id="avisoPol"></div>
-            <label class="check"><input type="checkbox" id="aceite"><span>Li as informações sobre cancelamento e atrasos.</span></label>
+            <label class="check"><input type="checkbox" id="aceite"><span id="aceiteTxt">Li as informações sobre cancelamento e atrasos.</span></label>
             <p class="erro" data-erro="5" role="alert" hidden></p>
           </fieldset>
 
@@ -250,6 +250,11 @@
           <h3 id="sucTitulo"></h3>
           <p id="sucTexto"></p>
           <dl class="revisao" id="revisaoFinal"></dl>
+          <div class="gerlink sinal-box" id="sinalBox" hidden>
+            <p id="sinalTxt"></p>
+            <div class="gerlink-row"><input id="sinalPix" readonly aria-label="Chave Pix"><button type="button" class="btn ghost sm" id="copiarPix">Copiar chave Pix</button></div>
+            <p class="nota" id="sinalFav"></p>
+          </div>
           <div class="gerlink" id="gerLinkBox" hidden>
             <p><b>Guarde este link</b> para ver, cancelar ou remarcar seu horário:</p>
             <div class="gerlink-row"><input id="gerLink" readonly aria-label="Link do seu agendamento"><button type="button" class="btn ghost sm" id="copiarLink">Copiar link</button></div>
