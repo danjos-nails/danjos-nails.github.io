@@ -570,6 +570,9 @@ const Booking = (() => {
    GERENCIAR AGENDAMENTO (link ?agendamento=código)
    ========================================================= */
 const token = new URLSearchParams(location.search).get("agendamento");
+/* tira o código da barra de endereço: assim, se alguém copiar o link do navegador
+   para divulgar o site, não leva junto o agendamento de uma cliente */
+if (token) { try { history.replaceState(null, "", location.pathname + location.hash); } catch { /* navegador antigo: segue normal */ } }
 const Gerenciar = (() => {
   const dlg = $("#gerenciar"), corpo = $("#gerCorpo");
   const abrirDlg = () => { if (!dlg.open) { try { dlg.showModal(); } catch { dlg.setAttribute("open", ""); } } };
